@@ -74,7 +74,7 @@
     html: `
       <div class="left">
         <span class="eyebrow" data-a style="--d:0">01 — Мета роботи</span>
-        <h2 class="split" style="--d:.1">${M.goal.replace('Практичне дослідження', '<em>Практичне дослідження</em>')}</h2>
+        <h2 class="split" data-by="word" style="--d:.1">${M.goal.replace('Практичне дослідження', '<em>Практичне дослідження</em>')}</h2>
         <div class="chips">${M.tools.map((t, i) => `<span class="chip" data-a style="--d:${1.1 + i * .07}">${t}</span>`).join('')}</div>
       </div>
       <div class="stats">
@@ -216,6 +216,9 @@
   // split text into words → chars (keeps inline tags like <em>, <code>)
   $$('.split').forEach(el => {
     let i = 0;
+    // long paragraphs (data-by="word") reveal word by word, so they finish in ~1s
+    const byWord = el.dataset.by === 'word';
+    let wi = 0;
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(tn => {
@@ -226,8 +229,9 @@
         const w = document.createElement('span'); w.className = 'w';
         [...part].forEach(ch => {
           const c = document.createElement('span'); c.className = 'c'; c.textContent = ch;
-          c.style.setProperty('--i', i++); w.appendChild(c);
+          c.style.setProperty('--i', byWord ? wi : i++); w.appendChild(c);
         });
+        wi++;
         frag.appendChild(w);
       });
       tn.replaceWith(frag);
